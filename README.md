@@ -53,12 +53,21 @@ Built with Next.js 16 (App Router), TypeScript, Tailwind CSS v4, Framer Motion, 
 
 - Node.js 20+
 - npm
+- PostgreSQL database (local or [Neon](https://neon.tech) — free tier works)
 
 ### Install
 
 ```bash
 npm install
 ```
+
+### Environment
+
+```bash
+cp .env.example .env
+```
+
+Set `DATABASE_URL` in `.env` to your PostgreSQL connection string.
 
 ### Database
 
@@ -69,7 +78,7 @@ npx prisma db push
 ### Seed (default accounts)
 
 ```bash
-npx tsx prisma/seed.ts
+npm run db:seed
 ```
 
 | Email | Password | Role |
@@ -83,7 +92,7 @@ npx tsx prisma/seed.ts
 npm run dev
 ```
 
-> **Note:** This project uses the `--webpack` flag (SWC/Turbopack native bindings unavailable on this platform).
+> **Note:** Local commands use `--webpack` (SWC native bindings unavailable on this Win32 platform). Vercel builds with SWC automatically.
 
 ### Build
 
@@ -92,6 +101,28 @@ npm run build
 ```
 
 Open [http://localhost:3000](http://localhost:3000). Login at `/secret-gate`.
+
+---
+
+## Deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2F<your-username>%2Fform-and-frame&env=DATABASE_URL&envDescription=PostgreSQL%20connection%20string%20(from%20Neon))
+
+1. Push this repo to GitHub
+2. Import the repo on [Vercel](https://vercel.com/new)
+3. Set the **Environment Variable**:
+   | Variable | Value |
+   |----------|-------|
+   | `DATABASE_URL` | Your PostgreSQL connection string |
+4. Deploy — Vercel runs `prisma generate && next build`
+
+### Database on Vercel
+
+This project uses PostgreSQL. [Neon](https://neon.tech) provides a free serverless PostgreSQL database and is the recommended option:
+
+1. Sign up at [neon.tech](https://neon.tech)
+2. Create a project → copy the connection string
+3. Add it as `DATABASE_URL` in Vercel project settings
 
 ---
 
@@ -127,24 +158,25 @@ src/
 │       └── DataTable.tsx       # Generic data table with delete action
 ├── lib/
 │   ├── auth.ts                 # JWT sign/verify, session management
-│   ├── prisma.ts               # PrismaClient singleton (libsql adapter)
+│   ├── prisma.ts               # PrismaClient singleton (pg adapter)
 │   ├── types.ts                # Shared TypeScript types
 │   └── platform.tsx            # URL platform detection (Instagram, YouTube, etc.)
 └── proxy.ts                    # Route guard for /admin/* routes
 prisma/
 ├── schema.prisma               # Database schema
-├── seed.ts                     # Seed script
-└── dev.db                      # SQLite database
+└── seed.ts                     # Seed script
+vercel.json                     # Vercel deployment config
+.env.example                    # Environment template
 ```
 
 ---
 
 ## Key Design Decisions
 
-- **Prisma v7 + libsql adapter** — Required for SQLite in Prisma v7 (no direct datasource URL)
+- **PostgreSQL + Prisma v7** — Uses `@prisma/adapter-pg` with the `pg` driver adapter (required for Prisma v7); `DATABASE_URL` env var configures the connection
 - **Next.js 16 proxy** — Uses `src/proxy.ts` instead of deprecated `middleware.ts`; validates JWT expiry via simple cookie check (avoids Edge Runtime `CompressionStream` incompatibility)
 - **Client-side admin pages** — Session and role enforcement happens client-side since server components can't access the proxy context
-- **`--webpack` flag** — Required for all `next` commands on this Win32 platform
+- **`--webpack` flag** — Required locally on this Win32 platform; Vercel uses its own SWC-based build
 - **Platform detection** — External links auto-detect Instagram, YouTube, Vimeo, GitHub and render corresponding icons with brand-specific colors
 
 ---

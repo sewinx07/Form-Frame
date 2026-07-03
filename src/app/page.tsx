@@ -95,7 +95,7 @@ export default function Home() {
   const [projects, setProjects] = useState<ProjectData[]>([]);
   const [activeTab, setActiveTab] = useState<TabFilter>("All");
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [formStatus, setFormStatus] = useState<"idle" | "sent" | "error">("idle");
+  const [formStatus, setFormStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [heroLoaded, setHeroLoaded] = useState(false);
   const workRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
@@ -113,15 +113,26 @@ export default function Home() {
       ? projects
       : projects.filter((p) => p.category === activeTab);
 
-  const handleContact = (e: React.FormEvent) => {
+  const handleContact = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) {
       setFormStatus("error");
       return;
     }
-    setFormStatus("sent");
-    setForm({ name: "", email: "", message: "" });
-    setTimeout(() => setFormStatus("idle"), 4000);
+    setFormStatus("sending");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setFormStatus("sent");
+      setForm({ name: "", email: "", message: "" });
+      setTimeout(() => setFormStatus("idle"), 4000);
+    } catch {
+      setFormStatus("error");
+    }
   };
 
   return (
@@ -438,10 +449,11 @@ export default function Home() {
                   type="submit"
                   variant="outline"
                   size="lg"
+                  disabled={formStatus === "sending"}
                   className="inline-flex items-center gap-2"
                 >
                   <Send size={13} />
-                  {formStatus === "sent" ? "Message Sent" : "Send Inquiry"}
+                  {formStatus === "sending" ? "Sending..." : formStatus === "sent" ? "Message Sent" : "Send Inquiry"}
                 </Button>
                 {formStatus === "sent" && (
                   <motion.p
