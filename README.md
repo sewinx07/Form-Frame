@@ -86,16 +86,13 @@ Configure these variables in `.env`:
 npx prisma migrate deploy
 ```
 
-### Seed (default accounts)
+### Seed
 
 ```bash
 npx tsx prisma/seed.ts
 ```
 
-| Email | Password | Role |
-|-------|----------|------|
-| `ceo@formandframe.com` | `admin123` | super_user |
-| `team@formandframe.com` | `team123` | team_member |
+Creates the initial admin accounts.
 
 ### Development
 
