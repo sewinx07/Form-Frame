@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
@@ -32,6 +33,18 @@ async function main() {
       role: "team_member",
     },
   });
+
+  const statData = [
+    { label: "Projects Delivered", value: "50+", order: 0 },
+    { label: "Years Experience", value: "8+", order: 1 },
+    { label: "Global Partners", value: "15+", order: 2 },
+    { label: "Client Satisfaction", value: "100%", order: 3 },
+  ];
+  await prisma.stat.deleteMany();
+  for (const s of statData) {
+    await prisma.stat.create({ data: s });
+  }
+
   console.log("Seeded successfully");
 }
 

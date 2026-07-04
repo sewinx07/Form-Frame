@@ -9,7 +9,7 @@ import { Footer } from "@/components/Footer";
 import { LuxuryBackground } from "@/components/LuxuryBackground";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import type { ProjectData, TabFilter } from "@/lib/types";
+import type { ProjectData, StatData, TabFilter } from "@/lib/types";
 
 const tabs: TabFilter[] = ["All", "Design", "Development", "Editing", "Other"];
 
@@ -93,6 +93,7 @@ function FloatingLabelInput({
 
 export default function Home() {
   const [projects, setProjects] = useState<ProjectData[]>([]);
+  const [stats, setStats] = useState<StatData[]>([]);
   const [activeTab, setActiveTab] = useState<TabFilter>("All");
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [formStatus, setFormStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -104,6 +105,10 @@ export default function Home() {
     fetch("/api/projects")
       .then((r) => r.json())
       .then((d) => setProjects(d.projects ?? []))
+      .catch(() => {});
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then((d) => setStats(d.stats ?? []))
       .catch(() => {});
     setTimeout(() => setHeroLoaded(true), 100);
   }, []);
@@ -243,14 +248,9 @@ export default function Home() {
         <section className="py-24 md:py-28 border-t border-charcoal-700/40">
           <div className="mx-auto max-w-7xl px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { number: "50+", label: "Projects Delivered" },
-                { number: "8+", label: "Years Experience" },
-                { number: "15+", label: "Global Partners" },
-                { number: "100%", label: "Client Satisfaction" },
-              ].map((stat, i) => (
+              {stats.map((stat, i) => (
                 <motion.div
-                  key={stat.label}
+                  key={stat.id}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
@@ -258,7 +258,7 @@ export default function Home() {
                   className="glass py-10 px-6 text-center"
                 >
                   <p className="font-serif text-3xl md:text-4xl text-off-white mb-1">
-                    {stat.number}
+                    {stat.value}
                   </p>
                   <p className="text-[8px] uppercase tracking-[0.2em] text-off-white-dim">
                     {stat.label}

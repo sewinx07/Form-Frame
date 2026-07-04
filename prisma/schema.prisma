@@ -36,3 +36,10 @@ model ContactInquiry {
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
 }
+
+model Stat {
+  id    String @id @default(cuid())
+  label String
+  value String
+  order Int    @default(0)
+}

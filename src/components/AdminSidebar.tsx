@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   FolderKanban,
   Users,
+  BarChart3,
   LogOut,
   Menu,
   X,
@@ -15,6 +16,7 @@ import {
 const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/projects", label: "Projects", icon: FolderKanban },
+  { href: "/admin/stats", label: "Stats", icon: BarChart3 },
   { href: "/admin/users", label: "Team", icon: Users },
 ];
 

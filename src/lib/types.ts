@@ -19,3 +19,10 @@ export interface UserData {
 }
 
 export type TabFilter = ProjectCategory | "All";
+
+export interface StatData {
+  id: string;
+  label: string;
+  value: string;
+  order: number;
+}
